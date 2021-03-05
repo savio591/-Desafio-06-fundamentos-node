@@ -1,10 +1,10 @@
 {
   "type": "postgres",
-  "host": "localhost",
+  "host": "ziggy.db.elephantsql.com",
   "port": 5432,
-  "username": "postgres",
-  "password": "docker",
-  "database": "gostack_desafio06",
+  "username": "omijmhip",
+  "password": "sDfaWYyQBXB1OibKUV7D4jtoaGxumkVI",
+  "database": "omijmhip",
   "entities": ["./src/models/*.ts"],
   "migrations": ["./src/database/migrations/*.ts"],
   "cli": {

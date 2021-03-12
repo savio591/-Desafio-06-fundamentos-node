@@ -1,8 +1,10 @@
 /* eslint-disable no-console */
 import { Router } from 'express';
 import { getCustomRepository } from 'typeorm'
+import Category from '../models/Category';
 
 import TransactionsRepository from '../repositories/TransactionsRepository';
+import CategoryService from '../services/CategoryService';
 import CreateTransactionService from '../services/CreateTransactionService';
 // import DeleteTransactionService from '../services/DeleteTransactionService';
 // import ImportTransactionsService from '../services/ImportTransactionsService';
@@ -15,11 +17,13 @@ transactionsRouter.get('/', async (request, response) => {
 
   const transactions = await transactionsRepository.find()
 
-  // eslint-disable-next-line no-console
-  console.log(transactions)
+  const getbalance = new TransactionsRepository()
 
+  const balance = getbalance.getBalance()
+
+  console.log(balance)
   return response.json(
-    transactions
+    balance
   )
 });
 
@@ -27,23 +31,22 @@ transactionsRouter.post('/', async (request, response) => {
   try {
     const { title, value, type, category } = request.body;
 
-
-    console.log(`Request received: ${request.body.parseJSON()}`)
-
     const createTransaction = new CreateTransactionService();
+    const resolveCategory = new CategoryService();
+
+    const categoryRel = resolveCategory.execute({ category })
 
     const transaction = await createTransaction.execute({
       title,
       value,
       type,
-      category
     })
 
-    return response.json(transaction)
+    return response.json([{"transaction": transaction}, {"category": categoryRel}])
   }
 
   catch (err) {
-    return null // por enquanto
+    return response.status(400).json({ error: err.message })
   }
 });
 

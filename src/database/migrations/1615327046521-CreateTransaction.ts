@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
 
 export default class CreateTransaction1615327046521
   implements MigrationInterface {
@@ -29,7 +29,8 @@ export default class CreateTransaction1615327046521
           },
           {
             name: 'category_id',
-            type: 'varchar',
+            type: 'uuid',
+            isNullable: true
           },
           {
             name: 'created_at',
@@ -44,6 +45,8 @@ export default class CreateTransaction1615327046521
         ],
       }),
     );
+
+
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

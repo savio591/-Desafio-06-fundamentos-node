@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Router } from 'express';
 import { getCustomRepository } from 'typeorm'
 
@@ -14,6 +15,9 @@ transactionsRouter.get('/', async (request, response) => {
 
   const transactions = await transactionsRepository.find()
 
+  // eslint-disable-next-line no-console
+  console.log(transactions)
+
   return response.json(
     transactions
   )
@@ -22,6 +26,9 @@ transactionsRouter.get('/', async (request, response) => {
 transactionsRouter.post('/', async (request, response) => {
   try {
     const { title, value, type, category } = request.body;
+
+
+    console.log(`Request received: ${request.body.parseJSON()}`)
 
     const createTransaction = new CreateTransactionService();
 

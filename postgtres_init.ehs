@@ -1,0 +1,1 @@
+docker run --rm -it  -p 5432:5432/tcp postgres:latest -e POSTGRES_PASSWORD=shoppng591

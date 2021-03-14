@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { getCustomRepository } from 'typeorm';
+import { getCustomRepository, getRepository } from 'typeorm';
 import Category from '../models/Category';
 // import AppError from '../errors/AppError';
 
@@ -11,6 +11,7 @@ interface Request {
   title: string;
   value: number;
   type: 'income' | 'outcome';
+  category_id: string;
 }
 
 interface Response {
@@ -19,15 +20,13 @@ interface Response {
 }
 
 class CreateTransactionService {
-  public async execute({ title, value, type }: Request): Promise<any> {
+  public async execute({ title, value, type, category_id }: Request): Promise<Transaction> {
 
-    const transactionRepository = getCustomRepository(TransactionsRepository);
+    const transactionRepository = getRepository(Transaction);
 
-    const createTransaction = transactionRepository.create({ title, value, type })
+    const createTransaction = transactionRepository.create({ title, value, type, category_id})
 
-    console.log(`[CTS] ${createTransaction}`)
     await transactionRepository.save(createTransaction)
-
     return createTransaction
   }
 }

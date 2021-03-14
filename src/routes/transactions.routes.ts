@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { Router } from 'express';
-import { getCustomRepository } from 'typeorm'
+import { getCustomRepository, TransactionRepository } from 'typeorm'
 import Category from '../models/Category';
 
 import TransactionsRepository from '../repositories/TransactionsRepository';
@@ -12,37 +12,27 @@ import CreateTransactionService from '../services/CreateTransactionService';
 const transactionsRouter = Router();
 
 transactionsRouter.get('/', async (request, response) => {
+  const transactionRepo = new TransactionsRepository()
 
-  const transactionsRepository = getCustomRepository(TransactionsRepository)
-
-  const transactions = await transactionsRepository.find()
-
-  const getbalance = new TransactionsRepository()
-
-  const balance = getbalance.getBalance()
-
-  console.log(balance)
-  return response.json(
-    balance
-  )
+  const all = await transactionRepo.all()
+  return response.json(all)
 });
+
 
 transactionsRouter.post('/', async (request, response) => {
   try {
     const { title, value, type, category } = request.body;
 
-    const createTransaction = new CreateTransactionService();
-    const resolveCategory = new CategoryService();
+    const transactionRepo = new TransactionsRepository()
 
-    const categoryRel = resolveCategory.execute({ category })
-
-    const transaction = await createTransaction.execute({
+    const transaction = await transactionRepo.createTransaction({
       title,
       value,
       type,
+      category
     })
 
-    return response.json([{"transaction": transaction}, {"category": categoryRel}])
+    return response.json(transaction)
   }
 
   catch (err) {

@@ -1,14 +1,15 @@
 /* eslint-disable no-console */
 import { Router } from 'express';
-import { getCustomRepository, TransactionRepository } from 'typeorm'
-import Category from '../models/Category';
+import multer from 'multer';
 
 import TransactionsRepository from '../repositories/TransactionsRepository';
-import CategoryService from '../services/CategoryService';
-import CreateTransactionService from '../services/CreateTransactionService';
-// import DeleteTransactionService from '../services/DeleteTransactionService';
+import DeleteTransactionService from '../services/DeleteTransactionService';
 // import ImportTransactionsService from '../services/ImportTransactionsService';
 
+import uploadConfig from '../config/upload'
+import ImportTransactionsService from '../services/ImportTransactionsService';
+
+const upload = multer(uploadConfig)
 const transactionsRouter = Router();
 
 transactionsRouter.get('/', async (request, response) => {
@@ -36,16 +37,41 @@ transactionsRouter.post('/', async (request, response) => {
   }
 
   catch (err) {
-    return response.status(400).json({ error: err.message })
+    return response.status(400).json({ 'message': err.message, 'status': 'error' })
   }
 });
 
 transactionsRouter.delete('/:id', async (request, response) => {
-  // TODO
+  try {
+    const { id } = request.params
+    const deleteService = new DeleteTransactionService()
+
+    await deleteService.execute(id)
+
+    return response.status(204).json({})
+  }
+  catch (err) {
+    return response.status(400).json({ 'message': err.message, 'status': 'error' })
+  }
+
 });
 
-transactionsRouter.post('/import', async (request, response) => {
-  // TODO
-});
+
+transactionsRouter.post(
+  '/import',
+  upload.single('file'),
+  async (request, response) => {
+    try {
+      const importService = new ImportTransactionsService()
+
+      await importService.execute(request.file.path)
+
+      return response.status(200).json()
+    }
+
+    catch (err) {
+      return response.status(400).json({ 'message': err.message, 'status': 'error' })
+    }
+  });
 
 export default transactionsRouter;

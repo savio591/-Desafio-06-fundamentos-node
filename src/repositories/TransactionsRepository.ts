@@ -7,6 +7,13 @@ import CategoryService from '../services/CategoryService';
 import CreateTransactionService from '../services/CreateTransactionService';
 import CategoriesRepository from './CategoriesRepository';
 
+interface CategoryResponse {
+  id: string;
+  title: string;
+  created_at: Date;
+  updated_at: Date
+}
+
 interface TransactionsRepo {
   id: string;
   title: string;
@@ -17,7 +24,7 @@ interface TransactionsRepo {
   updated_at: Date;
 }
 
-interface odio {
+interface Odio {
   transactions: TransactionsRepo
 }
 
@@ -35,8 +42,8 @@ interface CreateTransactionDTO {
 }
 
 interface GetTransactionDTO {
-  transactions: odio[];
-  balance: Balance[];
+  transactions: Odio[];
+  balance: Balance;
 }
 
 @EntityRepository(Transaction)
@@ -70,12 +77,12 @@ class TransactionsRepository extends Repository<Transaction[]> {
     return { income, outcome, total };
   }
 
-  public async all(): Promise<GetTransactionDTO[]> {
+  public async all(): Promise<GetTransactionDTO> {
     const transactionsRepo = getRepository(Transaction)
 
     const getTransactions = await transactionsRepo.find()
 
-    const transactions = getTransactions.map(async (
+    const transactionsMap = getTransactions.map(async (
       { title,
         type,
         value,
@@ -83,30 +90,26 @@ class TransactionsRepository extends Repository<Transaction[]> {
         id,
         created_at,
         updated_at
-      }) => {
+      }: Transaction): Promise<TransactionsRepo> => {
       const categoryService = new CategoriesRepository()
-      const findCategory = await categoryService.findCategoryById({ category_id })
+      const category = await categoryService.findCategoryById({ category_id })
 
-      const category = findCategory
-      const transactionsMap = {
+      return {
         title,
         type,
         value,
-        'category': category,
+        category,
         id,
         created_at,
         updated_at
       }
+    });
 
-      return transactionsMap
-    }
-    )
+    const transactions = transactionsMap
 
-    const getBalance = await this.getBalance()
+    const getBalanceRel = await this.getBalance()
 
-    const responser = { transactions, "balance": getBalance }
-    return responser
-
+    return { transactions, 'balance': getBalanceRel }
   }
 
   public async createTransaction({ title, type, value, category }: CreateTransactionDTO): Promise<Transaction> {
@@ -117,10 +120,6 @@ class TransactionsRepository extends Repository<Transaction[]> {
     const transaction = await transactionService.execute({ title, type, value, category_id: categoryRel.id })
 
     return transaction
-
-
-
-
   }
 
 }

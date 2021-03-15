@@ -23,12 +23,12 @@ class CategoriesRepository extends Repository<Category> {
 
   }
 
-  public async findCategoryById({ category_id }: DataId): Promise<Category | null> {
+  public async findCategoryById({ category_id }: DataId): Promise<Category> {
     const categoryRepo = getRepository(Category)
 
     const findCategoryById = await categoryRepo.findOne({ where: { id: category_id } })
 
-    return findCategoryById || null
+    return findCategoryById
 
 
   }
